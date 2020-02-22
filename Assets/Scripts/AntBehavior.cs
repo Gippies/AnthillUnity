@@ -11,24 +11,34 @@ public class AntBehavior : MonoBehaviour
     private Vector3 velocity;
     private Rigidbody myRigidbody;
 
-    void Start() {
+    void Start()
+    {
         myRigidbody = GetComponent<Rigidbody>();
         searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
         searchSeconds -= Time.deltaTime;
 
-        if (searchSeconds <= 0.0f) {
+        if (searchSeconds <= 0.0f)
+        {
             Vector3 direction = new Vector3(Random.Range(-1.0f, 1.0f), 0, Random.Range(-1.0f, 1.0f)).normalized;
             velocity = direction * speed;
             searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         }
     }
 
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
         // Note that deltaTime here automatically recognizes it's inside of FixedUpdate
         myRigidbody.position += velocity * Time.deltaTime;
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        if (collision.gameObject.tag == "Gatherer") {
+            Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+        }
     }
 }
