@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AntSpawner : MonoBehaviour {
+public class AntManager : MonoBehaviour {
     
     // Note that 42 was chosen because its square root is 7
     private static readonly int INITIAL_AMOUNT_OF_GATHERERS = 42;

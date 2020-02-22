@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 237437847}
   - component: {fileID: 237437848}
   m_Layer: 0
-  m_Name: LeafySpawner
+  m_Name: LeafyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -446,7 +446,7 @@ GameObject:
   - component: {fileID: 1217050635}
   - component: {fileID: 1217050636}
   m_Layer: 0
-  m_Name: AntSpawner
+  m_Name: AntManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
