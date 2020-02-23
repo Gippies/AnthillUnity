@@ -16,17 +16,23 @@ public class AntBehavior : MonoBehaviour {
 
     private readonly float speed = 2.0f;
 
+    private bool is_touching_carriable;
     private float searchSeconds;
     private GameObject approaching;
+    private GameObject carrying;
     private State currentState;
     private Vector3 velocity;
+    private Vector3 carryingPosition;
     private Rigidbody myRigidbody;
 
     void Start() {
         myRigidbody = GetComponent<Rigidbody>();
+        carryingPosition = new Vector3(0, transform.localScale.y, 0);
         searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         currentState = State.SEARCH;
         approaching = null;
+        carrying = null;
+        is_touching_carriable = false;
     }
 
     private void Search() {
@@ -37,10 +43,12 @@ public class AntBehavior : MonoBehaviour {
             searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         }
         foreach (GameObject leafy in LeafyManager.leafies) {
-            if (transform.position.x - MAX_SEARCH_RADIUS <= leafy.transform.position.x && leafy.transform.position.x <= transform.position.x + MAX_SEARCH_RADIUS &&
+            if (leafy.GetComponent<CarriableBehavior>().beingApproachedBy == null && leafy.GetComponent<CarriableBehavior>().beingCarriedBy == null &&
+                transform.position.x - MAX_SEARCH_RADIUS <= leafy.transform.position.x && leafy.transform.position.x <= transform.position.x + MAX_SEARCH_RADIUS &&
                 transform.position.y - MAX_SEARCH_RADIUS <= leafy.transform.position.y && leafy.transform.position.y <= transform.position.y + MAX_SEARCH_RADIUS &&
                 transform.position.z - MAX_SEARCH_RADIUS <= leafy.transform.position.z && leafy.transform.position.z <= transform.position.z + MAX_SEARCH_RADIUS) {
                 approaching = leafy;
+                leafy.GetComponent<CarriableBehavior>().beingApproachedBy = this;
                 currentState = State.GET_THING;
             }
         }
@@ -49,6 +57,23 @@ public class AntBehavior : MonoBehaviour {
     private void GetThing() {
         Vector3 direction = (approaching.transform.position - transform.position).normalized;
         velocity = direction * speed;
+        if (is_touching_carriable) {
+            carrying = approaching;
+            carrying.GetComponent<CarriableBehavior>().beingCarriedBy = this;
+            approaching = null;
+            carrying.GetComponent<CarriableBehavior>().beingApproachedBy = null;
+
+            carrying.transform.parent = transform;
+            carrying.transform.position = transform.position + carryingPosition;
+
+            currentState = State.RETURN_TO_HILL;
+        }
+    }
+
+    private void ReturnToHill() {
+        Vector3 direction = (Vector3.zero - transform.position).normalized;
+        velocity = direction * speed;
+        carrying.transform.position = transform.position + carryingPosition;
     }
 
     // Update is called once per frame
@@ -57,6 +82,8 @@ public class AntBehavior : MonoBehaviour {
             Search();
         else if (currentState == State.GET_THING)
             GetThing();
+        else if (currentState == State.RETURN_TO_HILL)
+            ReturnToHill();
     }
 
     void FixedUpdate()
@@ -68,6 +95,9 @@ public class AntBehavior : MonoBehaviour {
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.tag == "Gatherer") {
             Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+        }
+        else if (collision.gameObject.tag == "Carriable") {
+            is_touching_carriable = true;
         }
     }
 }
