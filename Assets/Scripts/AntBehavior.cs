@@ -12,15 +12,14 @@ public enum State {
 
 public class AntBehavior : MonoBehaviour {
     private static readonly float MAX_SEARCH_RADIUS = 1.0f;
-    private static readonly float MAX_SEARCH_SECONDS = 0.5f;
+    private static readonly float MAX_SEARCH_SECONDS = 1.0f;
 
     private readonly float speed = 2.0f;
 
-    private bool is_touching_carriable;
-    private bool is_touching_hill;
     private float searchSeconds;
     private GameObject approaching;
     private GameObject carrying;
+    private GameObject touchingGameObject;
     private State currentState;
     private Vector3 velocity;
     private Vector3 carryingPosition;
@@ -33,8 +32,7 @@ public class AntBehavior : MonoBehaviour {
         currentState = State.SEARCH;
         approaching = null;
         carrying = null;
-        is_touching_carriable = false;
-        is_touching_hill = false;
+        touchingGameObject = null;
     }
 
     private void Search() {
@@ -62,7 +60,7 @@ public class AntBehavior : MonoBehaviour {
     private void GetThing() {
         Vector3 direction = (approaching.transform.position - transform.position).normalized;
         velocity = direction * speed;
-        if (is_touching_carriable) {
+        if (touchingGameObject != null && touchingGameObject == approaching) {
             carrying = approaching;
             carrying.GetComponent<CarriableBehavior>().beingCarriedBy = this;
             approaching = null;
@@ -77,7 +75,7 @@ public class AntBehavior : MonoBehaviour {
         Vector3 direction = (Vector3.zero - transform.position).normalized;
         velocity = direction * speed;
         carrying.transform.position = transform.position + carryingPosition;
-        if (is_touching_hill) {
+        if (touchingGameObject != null && touchingGameObject.tag == "Hill") {
             carrying.transform.position = transform.position;
 
             carrying.GetComponent<CarriableBehavior>().is_stored = true;
@@ -112,10 +110,10 @@ public class AntBehavior : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.tag == "Carriable") {
-            is_touching_carriable = true;
+            touchingGameObject = other.gameObject;
         }
         else if (other.gameObject.tag == "Hill") {
-            is_touching_hill = true;
+            touchingGameObject = other.gameObject;
         }
     }
 }
