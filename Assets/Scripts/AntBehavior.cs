@@ -14,6 +14,8 @@ public class AntBehavior : MonoBehaviour {
     private static readonly float MAX_SEARCH_RADIUS = 1.0f;
     private static readonly float MAX_SEARCH_SECONDS = 1.0f;
 
+    public RootManager rootManager;
+
     private readonly float speed = 2.0f;
 
     private float searchSeconds;
@@ -42,7 +44,8 @@ public class AntBehavior : MonoBehaviour {
             velocity = direction * speed;
             searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         }
-        foreach (GameObject leafy in LeafyManager.leafies) {
+        List<GameObject> leafyList = rootManager.GetLeafies();
+        foreach (GameObject leafy in leafyList) {
             if (leafy.GetComponent<CarriableBehavior>().beingApproachedBy == null && leafy.GetComponent<CarriableBehavior>().beingCarriedBy == null &&
                 leafy.GetComponent<CarriableBehavior>().is_stored == false &&
                 transform.position.x - MAX_SEARCH_RADIUS <= leafy.transform.position.x && leafy.transform.position.x <= transform.position.x + MAX_SEARCH_RADIUS &&
