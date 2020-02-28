@@ -22,7 +22,7 @@ public class RootManager : MonoBehaviour {
     private void GroundSetup() {
         for (int i = 0; i < GROUND_WIDTH; i++) {
             for (int j = 0; j < GROUND_LENGTH; j++) {
-                Instantiate(groundPrefab, new Vector3(i - GROUND_WIDTH / 2, (float) -0.5, j - GROUND_LENGTH / 2), Quaternion.identity);
+                Instantiate(groundPrefab, new Vector3(i - GROUND_WIDTH / 2, -0.5f, j - GROUND_LENGTH / 2), Quaternion.identity);
             }
         }
     }
