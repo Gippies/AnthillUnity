@@ -12,6 +12,7 @@ public class RootManager : MonoBehaviour {
     public GameObject gathererPrefab;
     public GameObject leafyPrefab;
     public GameObject groundPrefab;
+    public GameObject dirtPrefab;
 
     private List<GameObject> leafies;
 
@@ -20,9 +21,20 @@ public class RootManager : MonoBehaviour {
     }
 
     private void GroundSetup() {
+        // Instantiate the ground
         for (int i = 0; i < GROUND_WIDTH; i++) {
             for (int j = 0; j < GROUND_LENGTH; j++) {
-                Instantiate(groundPrefab, new Vector3(i - GROUND_WIDTH / 2, -0.5f, j - GROUND_LENGTH / 2), Quaternion.identity);
+                int xPos = i - GROUND_WIDTH / 2;
+                int zPos = j - GROUND_LENGTH / 2;
+                if (xPos != 0 || zPos != 0)
+                    Instantiate(groundPrefab, new Vector3(xPos, -0.5f, zPos), Quaternion.identity);
+            }
+        }
+
+        // Instantiate the dirt
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                Instantiate(dirtPrefab, new Vector3(i, -1.5f, j), Quaternion.identity);
             }
         }
     }
