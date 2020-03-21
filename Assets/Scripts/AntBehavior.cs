@@ -97,7 +97,11 @@ public class AntBehavior : MonoBehaviour {
 
     private void Climb() {
         RaycastHit hit;
-        if (velocity.y <= 0.1f && Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 0.5f) && hit.collider.gameObject.CompareTag("Climbable") && hit.distance < 0.5f) {
+        if (velocity.y <= 0.1f &&
+            Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 0.5f) &&
+            hit.collider.gameObject.CompareTag("Climbable") &&
+            hit.distance < 0.5f) {
+            
             velocity += Vector3.up * speed;
         }
     }
