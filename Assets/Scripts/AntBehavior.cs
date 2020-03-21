@@ -106,16 +106,16 @@ public class AntBehavior : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.tag == "Gatherer") {
+        if (collision.gameObject.CompareTag("Gatherer")) {
             Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
         }
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.tag == "Carriable") {
+        if (other.gameObject.CompareTag("Carriable")) {
             touchingGameObject = other.gameObject;
         }
-        else if (other.gameObject.tag == "Hill") {
+        else if (other.gameObject.CompareTag("Hill")) {
             touchingGameObject = other.gameObject;
         }
     }
