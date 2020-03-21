@@ -97,10 +97,8 @@ public class AntBehavior : MonoBehaviour {
 
     private void Climb() {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 0.5f)) {
-            if (hit.collider.gameObject.CompareTag("Climbable") && hit.distance < 0.5f) {
-                velocity += Vector3.up * speed;
-            }
+        if (velocity.y <= 0.1f && Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 0.5f) && hit.collider.gameObject.CompareTag("Climbable") && hit.distance < 0.5f) {
+            velocity += Vector3.up * speed;
         }
     }
 
@@ -119,7 +117,7 @@ public class AntBehavior : MonoBehaviour {
     {
         // Note that deltaTime here automatically recognizes it's inside of FixedUpdate
         myRigidbody.position += velocity * Time.deltaTime;
-        myRigidbody.rotation = Quaternion.LookRotation(velocity);
+        myRigidbody.rotation = Quaternion.LookRotation(new Vector3(velocity.x, 0.0f, velocity.z));
     }
 
     void OnCollisionEnter(Collision collision) {
