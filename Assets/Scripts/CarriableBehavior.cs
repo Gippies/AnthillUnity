@@ -16,4 +16,15 @@ public class CarriableBehavior : MonoBehaviour
         beingCarriedBy = null;
         is_stored = false;
     }
+
+    public bool InSearchArea(Transform antTransform, float searchRadius) {
+        Vector3 antPosition = antTransform.position;
+        Vector3 thisPosition = transform.position;
+        return antPosition.x - searchRadius <= thisPosition.x &&
+               thisPosition.x <= antPosition.x + searchRadius &&
+               antPosition.y - searchRadius <= thisPosition.y &&
+               thisPosition.y <= antPosition.y + searchRadius &&
+               antPosition.z - searchRadius <= thisPosition.z &&
+               thisPosition.z <= antPosition.z + searchRadius;
+    }
 }

@@ -32,6 +32,7 @@ public class AntBehavior : MonoBehaviour {
         carryingPosition = new Vector3(0, transform.localScale.y, 0);
         searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         currentState = State.SEARCH;
+        velocity = Vector3.zero;
         approaching = null;
         carrying = null;
         touchingGameObject = null;
@@ -46,14 +47,12 @@ public class AntBehavior : MonoBehaviour {
         }
         List<GameObject> leafyList = rootManager.GetLeafies();
         foreach (GameObject leafy in leafyList) {
-            if (leafy.GetComponent<CarriableBehavior>().beingApproachedBy == null && leafy.GetComponent<CarriableBehavior>().beingCarriedBy == null &&
-                leafy.GetComponent<CarriableBehavior>().is_stored == false &&
-                transform.position.x - MAX_SEARCH_RADIUS <= leafy.transform.position.x && leafy.transform.position.x <= transform.position.x + MAX_SEARCH_RADIUS &&
-                transform.position.y - MAX_SEARCH_RADIUS <= leafy.transform.position.y && leafy.transform.position.y <= transform.position.y + MAX_SEARCH_RADIUS &&
-                transform.position.z - MAX_SEARCH_RADIUS <= leafy.transform.position.z && leafy.transform.position.z <= transform.position.z + MAX_SEARCH_RADIUS) {
+            CarriableBehavior carriableBehavior = leafy.GetComponent<CarriableBehavior>();
+            if (!carriableBehavior.beingApproachedBy && !carriableBehavior.beingCarriedBy && !carriableBehavior.is_stored &&
+                carriableBehavior.InSearchArea(transform, MAX_SEARCH_RADIUS)) {
 
                 approaching = leafy;
-                leafy.GetComponent<CarriableBehavior>().beingApproachedBy = this;
+                carriableBehavior.beingApproachedBy = this;
                 currentState = State.GET_THING;
                 break;
             }
@@ -63,7 +62,7 @@ public class AntBehavior : MonoBehaviour {
     private void GetThing() {
         Vector3 direction = (approaching.transform.position - transform.position).normalized;
         velocity = direction * speed;
-        if (touchingGameObject != null && touchingGameObject == approaching) {
+        if (touchingGameObject && touchingGameObject == approaching) {
             carrying = approaching;
             carrying.GetComponent<CarriableBehavior>().beingCarriedBy = this;
             approaching = null;
@@ -78,11 +77,12 @@ public class AntBehavior : MonoBehaviour {
         Vector3 direction = (Vector3.zero - transform.position).normalized;
         velocity = direction * speed;
         carrying.transform.position = transform.position + carryingPosition;
-        if (touchingGameObject != null && touchingGameObject.tag == "Hill") {
+        if (touchingGameObject && touchingGameObject.CompareTag("Hill")) {
             carrying.transform.position = transform.position;
 
-            carrying.GetComponent<CarriableBehavior>().is_stored = true;
-            carrying.GetComponent<CarriableBehavior>().beingCarriedBy = null;
+            CarriableBehavior carriableBehavior = carrying.GetComponent<CarriableBehavior>();
+            carriableBehavior.is_stored = true;
+            carriableBehavior.beingCarriedBy = null;
             carrying = null;
 
             currentState = State.SEARCH;
