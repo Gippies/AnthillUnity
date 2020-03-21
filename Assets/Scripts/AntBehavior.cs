@@ -12,6 +12,7 @@ public enum State {
 
 public class AntBehavior : MonoBehaviour {
     private static readonly float MAX_SEARCH_RADIUS = 1.0f;
+    private static readonly float DROP_ZONE_RADIUS = 1.0f;
     private static readonly float MAX_SEARCH_SECONDS = 1.0f;
 
     public RootManager rootManager;
@@ -25,11 +26,13 @@ public class AntBehavior : MonoBehaviour {
     private State currentState;
     private Vector3 velocity;
     private Vector3 carryingPosition;
+    private Vector3 dropPosition;
     private Rigidbody myRigidbody;
 
     void Start() {
         myRigidbody = GetComponent<Rigidbody>();
         carryingPosition = new Vector3(0, transform.localScale.y, 0);
+        dropPosition = Vector3.zero;
         searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         currentState = State.SEARCH;
         velocity = Vector3.zero;
@@ -74,10 +77,13 @@ public class AntBehavior : MonoBehaviour {
     }
 
     private void ReturnToHill() {
-        Vector3 direction = (Vector3.zero - transform.position).normalized;
+        Vector3 currentPosition = transform.position;
+        Vector3 direction = (dropPosition - currentPosition).normalized;
         velocity = direction * speed;
-        carrying.transform.position = transform.position + carryingPosition;
-        if (touchingGameObject && touchingGameObject.CompareTag("Hill")) {
+        carrying.transform.position = currentPosition + carryingPosition;
+        if (currentPosition.x > dropPosition.x - DROP_ZONE_RADIUS && currentPosition.x < dropPosition.x + DROP_ZONE_RADIUS &&
+            currentPosition.y > dropPosition.y - DROP_ZONE_RADIUS && currentPosition.y < dropPosition.y + DROP_ZONE_RADIUS &&
+            currentPosition.z > dropPosition.z - DROP_ZONE_RADIUS && currentPosition.z < dropPosition.z + DROP_ZONE_RADIUS) {
             carrying.transform.position = transform.position;
 
             CarriableBehavior carriableBehavior = carrying.GetComponent<CarriableBehavior>();
@@ -89,6 +95,15 @@ public class AntBehavior : MonoBehaviour {
         }
     }
 
+    private void Climb() {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 0.5f)) {
+            if (hit.collider.gameObject.CompareTag("Climbable") && hit.distance < 0.5f) {
+                velocity += Vector3.up * speed;
+            }
+        }
+    }
+
     // Update is called once per frame
     void Update() {
         if (currentState == State.SEARCH)
@@ -97,12 +112,14 @@ public class AntBehavior : MonoBehaviour {
             GetThing();
         else if (currentState == State.RETURN_TO_HILL)
             ReturnToHill();
+        Climb();
     }
 
     void FixedUpdate()
     {
         // Note that deltaTime here automatically recognizes it's inside of FixedUpdate
         myRigidbody.position += velocity * Time.deltaTime;
+        myRigidbody.rotation = Quaternion.LookRotation(velocity);
     }
 
     void OnCollisionEnter(Collision collision) {
@@ -113,9 +130,6 @@ public class AntBehavior : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.CompareTag("Carriable")) {
-            touchingGameObject = other.gameObject;
-        }
-        else if (other.gameObject.CompareTag("Hill")) {
             touchingGameObject = other.gameObject;
         }
     }
