@@ -244,6 +244,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gathererPrefab: {fileID: 3691850132859495384, guid: 2fe29f61b665c494383462d4575903cd,
     type: 3}
+  diggerPrefab: {fileID: 3686617602698774467, guid: a9ea512750c1e1b4495146dc9722c15e,
+    type: 3}
   leafyPrefab: {fileID: 6236854948153085326, guid: a9da9d168e127ba4da4322ea700d05d3,
     type: 3}
   groundPrefab: {fileID: 4728839602167980223, guid: b5c9473ad57e3f746a8a7a617ab30b48,

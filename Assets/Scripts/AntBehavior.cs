@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum State {
+public enum AntType {
+    GATHERER,
+    DIGGER
+}
+
+public enum AntState {
     SEARCH,
     GET_THING,
     RETURN_TO_HILL,
@@ -16,6 +21,7 @@ public class AntBehavior : MonoBehaviour {
     private static readonly float MAX_SEARCH_SECONDS = 1.0f;
 
     public RootManager rootManager;
+    public AntType antType;
 
     private readonly float speed = 2.0f;
 
@@ -23,7 +29,7 @@ public class AntBehavior : MonoBehaviour {
     private GameObject approaching;
     private GameObject carrying;
     private GameObject touchingGameObject;
-    private State currentState;
+    private AntState currentAntState;
     private Vector3 velocity;
     private Vector3 carryingPosition;
     private Vector3 dropPosition;
@@ -34,29 +40,28 @@ public class AntBehavior : MonoBehaviour {
         carryingPosition = new Vector3(0, transform.localScale.y, 0);
         dropPosition = Vector3.zero;
         searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
-        currentState = State.SEARCH;
+        currentAntState = AntState.SEARCH;
         velocity = Vector3.zero;
         approaching = null;
         carrying = null;
         touchingGameObject = null;
     }
 
-    private void Search() {
+    private void Search(List<GameObject> carriableList) {
         searchSeconds -= Time.deltaTime;
         if (searchSeconds <= 0.0f) {
             Vector3 direction = new Vector3(Random.Range(-1.0f, 1.0f), 0, Random.Range(-1.0f, 1.0f)).normalized;
             velocity = direction * speed;
             searchSeconds = Random.Range(0.0f, MAX_SEARCH_SECONDS);
         }
-        List<GameObject> leafyList = rootManager.GetLeafies();
-        foreach (GameObject leafy in leafyList) {
-            CarriableBehavior carriableBehavior = leafy.GetComponent<CarriableBehavior>();
-            if (!carriableBehavior.beingApproachedBy && !carriableBehavior.beingCarriedBy && !carriableBehavior.is_stored &&
+        foreach (GameObject carriable in carriableList) {
+            CarriableBehavior carriableBehavior = carriable.GetComponent<CarriableBehavior>();
+            if (!carriableBehavior.beingApproachedBy && !carriableBehavior.beingCarriedBy && !carriableBehavior.isStored &&
                 carriableBehavior.InSearchArea(transform, MAX_SEARCH_RADIUS)) {
 
-                approaching = leafy;
+                approaching = carriable;
                 carriableBehavior.beingApproachedBy = this;
-                currentState = State.GET_THING;
+                currentAntState = AntState.GET_THING;
                 break;
             }
         }
@@ -72,7 +77,7 @@ public class AntBehavior : MonoBehaviour {
             carrying.GetComponent<CarriableBehavior>().beingApproachedBy = null;
 
             carrying.transform.position = transform.position + carryingPosition;
-            currentState = State.RETURN_TO_HILL;
+            currentAntState = AntState.RETURN_TO_HILL;
         }
     }
 
@@ -87,11 +92,11 @@ public class AntBehavior : MonoBehaviour {
             carrying.transform.position = transform.position;
 
             CarriableBehavior carriableBehavior = carrying.GetComponent<CarriableBehavior>();
-            carriableBehavior.is_stored = true;
+            carriableBehavior.isStored = true;
             carriableBehavior.beingCarriedBy = null;
             carrying = null;
 
-            currentState = State.SEARCH;
+            currentAntState = AntState.SEARCH;
         }
     }
 
@@ -108,25 +113,33 @@ public class AntBehavior : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (currentState == State.SEARCH)
-            Search();
-        else if (currentState == State.GET_THING)
+        if (currentAntState == AntState.SEARCH) {
+            if (antType == AntType.GATHERER)
+                Search(rootManager.GetLeafies());
+            else if (antType == AntType.DIGGER)
+                Search(rootManager.GetDirts());
+        }
+        else if (currentAntState == AntState.GET_THING)
             GetThing();
-        else if (currentState == State.RETURN_TO_HILL)
+        else if (currentAntState == AntState.RETURN_TO_HILL)
             ReturnToHill();
         Climb();
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         // Note that deltaTime here automatically recognizes it's inside of FixedUpdate
         myRigidbody.position += velocity * Time.deltaTime;
-        myRigidbody.rotation = Quaternion.LookRotation(new Vector3(velocity.x, 0.0f, velocity.z));
+        Vector3 lookVector = new Vector3(velocity.x, 0.0f, velocity.z);
+        if (lookVector != Vector3.zero)
+            myRigidbody.rotation = Quaternion.LookRotation(lookVector);
     }
 
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag("Gatherer")) {
             Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+        }
+        else if (collision.gameObject.CompareTag("Carriable")) {
+            touchingGameObject = collision.gameObject;
         }
     }
 
