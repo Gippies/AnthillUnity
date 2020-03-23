@@ -9,6 +9,7 @@ public class CarriableBehavior : MonoBehaviour
     public AntBehavior beingApproachedBy;
     public AntBehavior beingCarriedBy;
     [FormerlySerializedAs("is_stored")] public bool isStored;
+    public float searchRadius;
 
     // Start is called before the first frame update
     void Start()
@@ -18,7 +19,7 @@ public class CarriableBehavior : MonoBehaviour
         isStored = false;
     }
 
-    public bool InSearchArea(Transform antTransform, float searchRadius) {
+    public bool InSearchArea(Transform antTransform) {
         Vector3 antPosition = antTransform.position;
         Vector3 thisPosition = transform.position;
         return antPosition.x - searchRadius <= thisPosition.x &&

@@ -10,6 +10,8 @@ public class RootManager : MonoBehaviour {
     private static readonly int INITIAL_AMOUNT_OF_LEAVES = 100;
     private static readonly int GROUND_WIDTH = 100;
     private static readonly int GROUND_LENGTH = 100;
+    private static readonly float LEAFY_SEARCH_RADIUS = 1.0f;
+    private static readonly float DIRT_SEARCH_RADIUS = 10.0f;
 
     public GameObject gathererPrefab;
     public GameObject diggerPrefab;
@@ -44,6 +46,7 @@ public class RootManager : MonoBehaviour {
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 GameObject dirt = Instantiate(dirtPrefab, new Vector3(i, -1.5f, j), Quaternion.identity);
+                dirt.GetComponent<CarriableBehavior>().searchRadius = DIRT_SEARCH_RADIUS;
                 dirts.Add(dirt);
             }
         }
@@ -71,6 +74,7 @@ public class RootManager : MonoBehaviour {
         leafies = new List<GameObject>();
         for (int i = 0; i < INITIAL_AMOUNT_OF_LEAVES; i++) {
             GameObject newLeafy = Instantiate(leafyPrefab, new Vector3(Random.Range(-20.0f, 20.0f), 0.25f / 2.0f, Random.Range(-20.0f, 20.0f)), Quaternion.identity);
+            newLeafy.GetComponent<CarriableBehavior>().searchRadius = LEAFY_SEARCH_RADIUS;
             leafies.Add(newLeafy);
         }
     }

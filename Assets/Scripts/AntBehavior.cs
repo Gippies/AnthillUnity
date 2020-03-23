@@ -16,7 +16,6 @@ public enum AntState {
 }
 
 public class AntBehavior : MonoBehaviour {
-    private static readonly float MAX_SEARCH_RADIUS = 1.0f;
     private static readonly float DROP_ZONE_RADIUS = 1.0f;
     private static readonly float MAX_SEARCH_SECONDS = 1.0f;
 
@@ -57,7 +56,7 @@ public class AntBehavior : MonoBehaviour {
         foreach (GameObject carriable in carriableList) {
             CarriableBehavior carriableBehavior = carriable.GetComponent<CarriableBehavior>();
             if (!carriableBehavior.beingApproachedBy && !carriableBehavior.beingCarriedBy && !carriableBehavior.isStored &&
-                carriableBehavior.InSearchArea(transform, MAX_SEARCH_RADIUS)) {
+                carriableBehavior.InSearchArea(transform)) {
 
                 approaching = carriable;
                 carriableBehavior.beingApproachedBy = this;
